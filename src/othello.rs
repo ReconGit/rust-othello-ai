@@ -56,7 +56,7 @@ impl Othello {
         }
         // reverse cells
         self.board[position.1][position.0] = reverse;
-        for cell in self.get_flipped_cells(position) {
+        for cell in self.flipped_cells(position) {
             self.board[cell.1][cell.0] = reverse;
         }
         // update game state
@@ -84,7 +84,7 @@ impl Othello {
         self.black_score = self.board.iter().flatten().filter(|&x| *x == Cell::Black).count() as u8;
         self.white_score = self.board.iter().flatten().filter(|&x| *x == Cell::White).count() as u8;
         // check if game is over
-        if self.is_full() || self.black_score == 0 || self.white_score == 0 {
+        if self.is_board_full() || self.black_score == 0 || self.white_score == 0 {
             self.decide_winner();
             return;
         }
@@ -94,7 +94,7 @@ impl Othello {
             State::WhiteTurn => State::BlackTurn,
             _ => panic!("(Unexpected)Can't switch turns: Game is over!"),
         };
-        self.update_valid_moves();
+        self.update_valid_cells();
         // if no valid moves, switch turns again
         if self.get_valid_moves().is_empty() {
             self.state = match self.state {
@@ -102,7 +102,7 @@ impl Othello {
                 State::WhiteTurn => State::BlackTurn,
                 _ => panic!("(Unexpected)Can't switch turns: Game is over!"),
             };
-            self.update_valid_moves();
+            self.update_valid_cells();
             // if still no valid moves, game is over
             if self.get_valid_moves().is_empty() {
                 self.decide_winner();
@@ -110,10 +110,10 @@ impl Othello {
         }
     }
 
-    fn is_full(&self) -> bool {
+    fn is_board_full(&self) -> bool {
         for y in 0..8 {
             for x in 0..8 {
-                if ![Cell::Black, Cell::White].contains(&self.board[y][x]) {
+                if [Cell::Empty, Cell::Valid].contains(&self.board[y][x]) {
                     return false;
                 }
             }
@@ -131,20 +131,20 @@ impl Othello {
         }
     }
 
-    fn update_valid_moves(&mut self) -> () {
+    fn update_valid_cells(&mut self) -> () {
         for y in 0..8 {
             for x in 0..8 {
                 if self.board[y][x] == Cell::Valid {
                     self.board[y][x] = Cell::Empty;
                 }
-                if self.board[y][x] == Cell::Empty && !self.get_flipped_cells((x, y)).is_empty() {
+                if self.board[y][x] == Cell::Empty && !self.flipped_cells((x, y)).is_empty() {
                     self.board[y][x] = Cell::Valid;
                 }
             }
         }
     }
 
-    fn get_flipped_cells(&self, position: (usize, usize)) -> Vec<(usize, usize)> {
+    fn flipped_cells(&self, position: (usize, usize)) -> Vec<(usize, usize)> {
         let player = match self.state {
             State::BlackTurn => Cell::Black,
             State::WhiteTurn => Cell::White,
@@ -161,21 +161,21 @@ impl Othello {
         let directions = [(1, 0), (-1, 0), (0, 1), (0, -1), (1, 1), (-1, -1), (1, -1), (-1, 1)];
         let mut flipped = Vec::new();
         for direction in directions {
-            flipped.append(&mut self.get_flipped_cells_in_directions(pos_x, pos_y, direction.0, direction.1, player, opponent));
+            flipped.append(&mut self.flipped_cells_in_directions(pos_x, pos_y, direction.0, direction.1, player, opponent));
         }
         flipped
     }
 
-    fn get_flipped_cells_in_directions(&self, pos_x: usize, pos_y: usize, dx: i8, dy: i8, player: Cell, opponent: Cell) -> Vec<(usize, usize)> {
+    fn flipped_cells_in_directions(&self, pos_x: usize, pos_y: usize, dx: i8, dy: i8, player: Cell, opponent: Cell) -> Vec<(usize, usize)> {
         let mut flipped = Vec::new();
         let mut x = pos_x.wrapping_add(dx as usize);
         let mut y = pos_y.wrapping_add(dy as usize);
-        while (0..=7).contains(&x) && (0..=7).contains(&y) && self.board[y][x] == opponent {
+        while (0..8).contains(&x) && (0..8).contains(&y) && self.board[y][x] == opponent {
             flipped.push((x, y));
             x = x.wrapping_add(dx as usize);
             y = y.wrapping_add(dy as usize);
         }
-        if !(0..=7).contains(&x) || !(0..=7).contains(&y) || self.board[y][x] != player {
+        if !((0..8).contains(&x) && (0..8).contains(&y)) || self.board[y][x] != player {
             return Vec::new();
         }
         flipped

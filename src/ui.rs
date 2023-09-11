@@ -14,25 +14,26 @@ pub fn start_game() {
     while [State::BlackTurn, State::WhiteTurn].contains(&game.state) {
         round += 1;
         println!("{}", Colour::Green.paint(format!("\n      Round {}", round)));
-        print_game_board(game.board);
+        print_board(game.board);
         print_score(game.black_score, game.white_score);
         print_state(game.state);
 
         let position = if game.state == State::BlackTurn {
-            mcts_move(&game, 100)
+            mcts_move(&game, 10)
         } else {
-            mcts_move(&game, 100)
+            mcts_move(&game, 10)
         };
+        println!("      Move: {}{}", (position.0 as u8 + 65) as char, position.1 + 1);
         game.make_move(position);
     }
     println!("\n     Game over!");
-    print_game_board(game.board);
+    print_board(game.board);
     print_score(game.black_score, game.white_score);
     print_state(game.state);
     println!();
 }
 
-fn print_game_board(game_board: [[Cell; 8]; 8]) {
+fn print_board(game_board: [[Cell; 8]; 8]) {
     println!("   A B C D E F G H");
     for y in 0..8 {
         print!("{} |", y + 1);
@@ -42,7 +43,7 @@ fn print_game_board(game_board: [[Cell; 8]; 8]) {
                 Cell::Empty => print!(" "),
                 Cell::Black => print!("{}", Colour::Black.paint("●")),
                 Cell::White => print!("{}", Colour::White.paint("●")),
-                Cell::Valid => print!("{}", Colour::Yellow.paint("●")),
+                Cell::Valid => print!("{}", Colour::Yellow.paint("*")),
             }
             print!("|");
         }
@@ -51,22 +52,18 @@ fn print_game_board(game_board: [[Cell; 8]; 8]) {
 }
 
 fn print_score(black_score: u8, white_score: u8) {
-    println!("Black: {} | White: {}", black_score, white_score);
+    print!("{}", Colour::Black.paint(format!("Black: {}", black_score)));
+    println!(" | White: {}", white_score);
 }
 
 fn print_state(state: State) {
     let current_state = match state {
         // print colored
-        State::BlackTurn => Colour::Black.paint("   Black's turn!"),
-        State::WhiteTurn => Colour::White.paint("   White's turn!"),
-        State::BlackWon => Colour::Black.paint("    Black won!"),
-        State::WhiteWon => Colour::White.paint("    White won!"),
-        State::Draw => Colour::Yellow.paint("      Draw!"),
+        State::BlackTurn => Colour::Black.paint("     BLACK turn"),
+        State::WhiteTurn => Colour::White.paint("     WHITE turn"),
+        State::BlackWon =>  Colour::Black.paint("     BLACK won"),
+        State::WhiteWon =>  Colour::White.paint("     WHITE won"),
+        State::Draw =>     Colour::Yellow.paint("        DRAW"),
     };
     println!("{}", current_state);
-}
-
-fn random_move(game: &Othello, _dummy: i8) -> (usize, usize) {
-    let valid_moves = game.get_valid_moves();
-    valid_moves[rand::random::<usize>() % valid_moves.len()]
 }
