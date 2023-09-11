@@ -26,7 +26,7 @@ pub fn start_game() {
         println!("      Move: {}{}", (position.0 as u8 + 65) as char, position.1 + 1);
         game.make_move(position);
     }
-    println!("\n     Game over!");
+    println!("\n     Game Over!");
     print_board(game.board);
     print_score(game.black_score, game.white_score);
     print_state(game.state);
