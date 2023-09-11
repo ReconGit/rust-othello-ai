@@ -79,10 +79,12 @@ pub fn mcts_move(othello: &Othello, iterations: i16) -> (usize, usize) {
         }
         // EXPAND
         if !node.borrow().unexplored.is_empty() {
+            // choose random unexplored move
             let rand_idx = rand::random::<usize>() % node.borrow().unexplored.len();
             let explored_move = node.borrow().unexplored[rand_idx];
             node.borrow_mut().unexplored.remove(rand_idx);
             simulation.make_move(explored_move);
+            // create new child node and add to tree
             let child = Node::new(Some(node.clone()), explored_move, simulation.state, simulation.get_valid_moves());
             node.borrow_mut().children.push(child.clone());
             node = child;

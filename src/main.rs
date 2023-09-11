@@ -1,14 +1,10 @@
-use std::env;
-
 pub mod mcts;
 pub mod minimax;
 pub mod othello;
-mod test;
+pub mod benchmark;
 //mod ui;
 
 fn main() {
-    env::set_var("RUST_BACKTRACE", "1");
-
-    test::run_tests();
     //ui::start_game();
+    benchmark::run_tests();
 }

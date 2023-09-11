@@ -13,13 +13,13 @@ pub fn start_game() {
     let mut round = 0;
     while [State::BlackTurn, State::WhiteTurn].contains(&game.state) {
         round += 1;
-        println!("{}", Colour::Green.paint(format!("\nRound {}", round)));
+        println!("{}", Colour::Green.paint(format!("\n      Round {}", round)));
         print_game_board(game.board);
         print_score(game.black_score, game.white_score);
         print_state(game.state);
 
         let position = if game.state == State::BlackTurn {
-            random_move(&game, 0)
+            mcts_move(&game, 100)
         } else {
             mcts_move(&game, 100)
         };
