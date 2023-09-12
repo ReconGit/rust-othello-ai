@@ -8,45 +8,39 @@ use crate::{
 };
 
 const GAMES: i16 = 10;
-const MINIMAX_DEPTH: i16 = 1;
+const MINIMAX_DEPTH: i16 = 2;
 const MCTS_ITERATIONS: i16 = 100;
 
-pub fn run_tests() {
-    println!("{}", Colour::Purple.paint("Starting benchmarks..."));
+pub fn run_benchmarks() {
+    println!("{}", Colour::Purple.paint("Running benchmarks..."));
     let start_time = Instant::now();
 
     println!("{}", Colour::Blue.paint("\nRandom vs Random"));
     benchmark_game(random_move, random_move, 0, 0);
 
-    println!("{}", Colour::Blue.paint("\nBLACK Random vs WHITE Minimax"));
-    benchmark_game(random_move, minimax_move, 0, MINIMAX_DEPTH);
-
     println!("{}", Colour::Blue.paint("\nBLACK Minimax vs WHITE Random"));
     benchmark_game(minimax_move, random_move, MINIMAX_DEPTH, 0);
 
-    println!("{}", Colour::Blue.paint("\nBLACK Random vs WHITE Minimax"));
+    println!("{}", Colour::Blue.paint("\nWHITE Minimax vs BLACK Random"));
     benchmark_game(random_move, minimax_move, 0, MINIMAX_DEPTH);
 
-    println!("{}", Colour::Blue.paint("\nBLACK Minimax vs WHITE Random"));
-    benchmark_game(minimax_move, random_move, MINIMAX_DEPTH, 0);
-
-    println!("{}", Colour::Blue.paint("\nBLACK Random vs WHITE MCTS"));
-    benchmark_game(random_move, mcts_move, 0, MCTS_ITERATIONS);
+    println!("{}", Colour::Blue.paint("\nMinimax vs Minimax"));
+    benchmark_game(minimax_move, minimax_move, MINIMAX_DEPTH, MINIMAX_DEPTH);
 
     println!("{}", Colour::Blue.paint("\nBLACK MCTS vs WHITE Random"));
     benchmark_game(mcts_move, random_move, MCTS_ITERATIONS, 0);
+
+    println!("{}", Colour::Blue.paint("\nWHITE MCTS vs BLACK Random"));
+    benchmark_game(random_move, mcts_move, 0, MCTS_ITERATIONS);
+
+    println!("{}", Colour::Blue.paint("\nMCTS vs MCTS"));
+    benchmark_game(mcts_move, mcts_move, MCTS_ITERATIONS, MCTS_ITERATIONS);
 
     println!("{}", Colour::Blue.paint("\nBLACK Minimax vs WHITE MCTS"));
     benchmark_game(minimax_move, mcts_move, MINIMAX_DEPTH, MCTS_ITERATIONS);
 
     println!("{}", Colour::Blue.paint("\nBLACK MCTS vs WHITE Minimax"));
     benchmark_game(mcts_move, minimax_move, MCTS_ITERATIONS, MINIMAX_DEPTH);
-
-    println!("{}", Colour::Blue.paint("\nMinimax vs Minimax"));
-    benchmark_game(minimax_move, minimax_move, MINIMAX_DEPTH, MINIMAX_DEPTH);
-
-    println!("{}", Colour::Blue.paint("\nMCTS vs MCTS"));
-    benchmark_game(mcts_move, mcts_move, MCTS_ITERATIONS, MCTS_ITERATIONS);
 
     let elapsed_time = start_time.elapsed().as_secs_f32();
     println!("{}", Colour::Purple.paint(format!("\nTotal elapsed time: {:.2}s", elapsed_time)));

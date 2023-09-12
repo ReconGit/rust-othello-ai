@@ -27,11 +27,11 @@ pub fn minimax_move(game: &Othello, depth: i16) -> (usize, usize) {
     }
     // iterate depth based on round
     let mut depth = depth;
-    if round >= 48 {
+    if round >= 50 {
         depth = depth + 10;
     } else if round > 40 {
         depth = depth + 2;
-    } else if round > 32 {
+    } else if round > 30 {
         depth = depth + 1;
     }
 
@@ -74,11 +74,11 @@ fn minimax(game: &Othello, my_turn: State, depth: i16, mut alpha: i32, mut beta:
         let value = minimax(&simulation, my_turn, depth - 1, alpha, beta);
         // alpha-beta pruning
         if state == my_turn {
-            best_value = std::cmp::max(best_value, value);
-            alpha = std::cmp::max(alpha, best_value);
+            best_value = std::cmp::max(value, best_value);
+            alpha = std::cmp::max(value, alpha);
         } else {
-            best_value = std::cmp::min(best_value, value);
-            beta = std::cmp::min(beta, best_value);
+            best_value = std::cmp::min(value, best_value);
+            beta = std::cmp::min(value, beta);
         }
         if alpha >= beta {
             break;
