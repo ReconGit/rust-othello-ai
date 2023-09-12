@@ -11,7 +11,7 @@ const REWARDS: [[i32; 8]; 8] = [
     [80, -20, 20, 10, 10, 20, -20, 80],
 ];
 
-pub fn minimax_move(game: &Othello, depth: i16) -> (usize, usize) {
+pub fn minimax_move(game: &Othello, mut depth: i16) -> (usize, usize) {
     let possible_moves = game.get_valid_moves();
     if possible_moves.is_empty() {
         panic!("Minimax: No valid moves!");
@@ -26,7 +26,6 @@ pub fn minimax_move(game: &Othello, depth: i16) -> (usize, usize) {
         return possible_moves[rand::random::<usize>() % possible_moves.len()];
     }
     // iterate depth based on round
-    let mut depth = depth;
     if round >= 50 {
         depth += 10;
     } else if round > 40 {
@@ -74,11 +73,11 @@ fn minimax(game: &Othello, my_turn: State, depth: i16, mut alpha: i32, mut beta:
         let value = minimax(&simulation, my_turn, depth - 1, alpha, beta);
         // alpha-beta pruning
         if state == my_turn {
-            best_value = std::cmp::max(value, best_value);
-            alpha = std::cmp::max(value, alpha);
+            best_value = std::cmp::max(best_value, value);
+            alpha = std::cmp::max(best_value, alpha);
         } else {
-            best_value = std::cmp::min(value, best_value);
-            beta = std::cmp::min(value, beta);
+            best_value = std::cmp::min(best_value, value);
+            beta = std::cmp::min(best_value, beta);
         }
         if alpha >= beta {
             break;
@@ -95,7 +94,7 @@ fn evaluate_board(game_board: [[Cell; 8]; 8], my_turn: State) -> i32 {
             if cell == Cell::Black {
                 score += if my_turn == State::BlackTurn { REWARDS[y][x] } else { -REWARDS[y][x] };
             } else if cell == Cell::White {
-                score -= if my_turn == State::WhiteTurn { REWARDS[y][x] } else { -REWARDS[y][x] };
+                score += if my_turn == State::WhiteTurn { REWARDS[y][x] } else { -REWARDS[y][x] };
             }
         }
     }

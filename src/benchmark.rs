@@ -8,24 +8,24 @@ use crate::{
 };
 
 const GAMES: i16 = 10;
-const MINIMAX_DEPTH: i16 = 1;
+const MINIMAX_DEPTH: i16 = 2;
 const MCTS_ITERATIONS: i16 = 100;
 
 pub fn run_benchmarks() {
     println!("{}", Colour::Purple.paint("Running benchmarks..."));
     let start_time = Instant::now();
 
-    println!("{}", Colour::Blue.paint("\nRandom vs Random"));
-    benchmark_game(random_move, random_move, 0, 0);
+    // println!("{}", Colour::Blue.paint("\nRandom vs Random"));
+    // benchmark_game(random_move, random_move, 0, 0);
 
-    println!("{}", Colour::Blue.paint("\nBLACK Minimax vs WHITE Random"));
-    benchmark_game(minimax_move, random_move, MINIMAX_DEPTH, 0);
+    // println!("{}", Colour::Blue.paint("\nBLACK Minimax vs WHITE Random"));
+    // benchmark_game(minimax_move, random_move, MINIMAX_DEPTH, 0);
 
-    println!("{}", Colour::Blue.paint("\nWHITE Minimax vs BLACK Random"));
-    benchmark_game(random_move, minimax_move, 0, MINIMAX_DEPTH);
+    // println!("{}", Colour::Blue.paint("\nWHITE Minimax vs BLACK Random"));
+    // benchmark_game(random_move, minimax_move, 0, MINIMAX_DEPTH);
 
-    println!("{}", Colour::Blue.paint("\nMinimax vs Minimax"));
-    benchmark_game(minimax_move, minimax_move, MINIMAX_DEPTH, MINIMAX_DEPTH);
+    // println!("{}", Colour::Blue.paint("\nMinimax vs Minimax"));
+    // benchmark_game(minimax_move, minimax_move, MINIMAX_DEPTH, MINIMAX_DEPTH);
 
     println!("{}", Colour::Blue.paint("\nBLACK MCTS vs WHITE Random"));
     benchmark_game(mcts_move, random_move, MCTS_ITERATIONS, 0);
@@ -85,7 +85,7 @@ fn benchmark_game(
     println!("         Draws: {} {:.0} %", draws, (draws as f32 / GAMES as f32) * 100 as f32);
 }
 
-fn random_move(game: &Othello, _dummy: i16) -> (usize, usize) {
+fn random_move(game: &Othello, _dummy_iterations: i16) -> (usize, usize) {
     let valid_moves = game.get_valid_moves();
     valid_moves[rand::random::<usize>() % valid_moves.len()]
 }

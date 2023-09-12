@@ -29,10 +29,10 @@ impl Node {
     fn select_child(&self) -> Rc<RefCell<Node>> {
         let mut best_child_idx = 0;
         let mut best_value = std::f32::MIN;
-        let log_total = (2.0 * self.visits as f32).log2();
+        let ln_total = (2.0 * self.visits as f32).ln();
         for (i, child) in self.children.iter().enumerate() {
             let child_ = child.borrow();
-            let uct_value = child_.wins as f32 / child_.visits as f32 + (log_total / child_.visits as f32).sqrt();
+            let uct_value = child_.wins as f32 / child_.visits as f32 + (ln_total / child_.visits as f32).sqrt();
             if uct_value > best_value {
                 best_child_idx = i;
                 best_value = uct_value;
@@ -42,16 +42,16 @@ impl Node {
     }
 
     fn get_most_visited_child_position(&self) -> (usize, usize) {
-        let mut most_visited_child = None;
+        let mut most_visited_child_idx = 0;
         let mut most_visits = 0;
-        for child in &self.children {
+        for (i, child) in self.children.iter().enumerate() {
             let child_ = child.borrow();
             if child_.visits > most_visits {
-                most_visited_child = Some(child);
+                most_visited_child_idx = i;
                 most_visits = child_.visits;
             }
         }
-        most_visited_child.unwrap().borrow().position
+        self.children[most_visited_child_idx].borrow().position
     }
 
     fn update(&mut self, result: State) {
