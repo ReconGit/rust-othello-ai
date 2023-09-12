@@ -58,9 +58,9 @@ impl Node {
         if result == State::Draw {
             // no change to node's wins on draw
         } else if (result == State::BlackWon) == (self.turn == State::BlackTurn) {
-            self.wins -= 1; // opponent won
-        } else {
             self.wins += 1;
+        } else {
+            self.wins -= 1;
         }
         self.visits += 1;
     }
@@ -82,10 +82,12 @@ pub fn mcts_move(othello: &Othello, iterations: i16) -> (usize, usize) {
             // choose random unexplored move
             let rand_idx = rand::random::<usize>() % node.borrow().unexplored.len();
             let explored_move = node.borrow().unexplored[rand_idx];
+            let explored_turn = simulation.state;
+            // remove explored move from unexplored list
             node.borrow_mut().unexplored.remove(rand_idx);
             simulation.make_move(explored_move);
             // create new child node and add to tree
-            let child = Node::new(Some(node.clone()), explored_move, simulation.state, simulation.get_valid_moves());
+            let child = Node::new(Some(node.clone()), explored_move, explored_turn, simulation.get_valid_moves());
             node.borrow_mut().children.push(child.clone());
             node = child;
         }

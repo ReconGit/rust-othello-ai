@@ -28,11 +28,11 @@ pub fn minimax_move(game: &Othello, depth: i16) -> (usize, usize) {
     // iterate depth based on round
     let mut depth = depth;
     if round >= 50 {
-        depth = depth + 10;
+        depth += 10;
     } else if round > 40 {
-        depth = depth + 2;
+        depth += 2;
     } else if round > 30 {
-        depth = depth + 1;
+        depth += 1;
     }
 
     let my_turn = game.state;
