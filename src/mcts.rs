@@ -2,6 +2,50 @@ use crate::othello::{Othello, State};
 use std::cell::RefCell;
 use std::rc::Rc;
 
+pub fn mcts_move(othello: &Othello, iterations: i16) -> (usize, usize) {
+    let root = Node::new(None, (0, 0), othello.state, othello.get_valid_moves());
+    for _ in 0..iterations {
+        let mut node = root.clone();
+        let mut simulation = othello.clone();
+        // SELECT
+        while node.borrow().unexplored.is_empty() && !node.borrow().children.is_empty() {
+            let child = node.borrow().select_child();
+            simulation.make_move(child.borrow().position);
+            node = child;
+        }
+        // EXPAND
+        if !node.borrow().unexplored.is_empty() {
+            // choose random unexplored move
+            let rand_idx = rand::random::<usize>() % node.borrow().unexplored.len();
+            let explored_move = node.borrow().unexplored[rand_idx];
+            let explored_turn = simulation.state;
+            // remove explored move from unexplored list
+            node.borrow_mut().unexplored.remove(rand_idx);
+            simulation.make_move(explored_move);
+            // create new child node and add to tree
+            let child = Node::new(Some(node.clone()), explored_move, explored_turn, simulation.get_valid_moves());
+            node.borrow_mut().children.push(child.clone());
+            node = child;
+        }
+        // SIMULATE
+        while [State::BlackTurn, State::WhiteTurn].contains(&simulation.state) {
+            let valid_moves = simulation.get_valid_moves();
+            let random_move = valid_moves[rand::random::<usize>() % valid_moves.len()];
+            simulation.make_move(random_move);
+        }
+        // BACKPROPAGATE
+        let result = simulation.state;
+        while node.borrow().parent.is_some() {
+            node.borrow_mut().update(result);
+            let parent = node.borrow().parent.as_ref().unwrap().clone();
+            node = parent;
+        }
+        node.borrow_mut().update(result);
+    }
+    let best_move = root.borrow().get_most_visited_child_position();
+    best_move
+}
+
 #[derive(PartialEq)]
 struct Node {
     parent: Option<Rc<RefCell<Node>>>,
@@ -64,48 +108,4 @@ impl Node {
         }
         self.visits += 1;
     }
-}
-
-pub fn mcts_move(othello: &Othello, iterations: i16) -> (usize, usize) {
-    let root = Node::new(None, (0, 0), othello.state, othello.get_valid_moves());
-    for _ in 0..iterations {
-        let mut node = root.clone();
-        let mut simulation = othello.clone();
-        // SELECT
-        while node.borrow().unexplored.is_empty() && !node.borrow().children.is_empty() {
-            let child = node.borrow().select_child();
-            simulation.make_move(child.borrow().position);
-            node = child;
-        }
-        // EXPAND
-        if !node.borrow().unexplored.is_empty() {
-            // choose random unexplored move
-            let rand_idx = rand::random::<usize>() % node.borrow().unexplored.len();
-            let explored_move = node.borrow().unexplored[rand_idx];
-            let explored_turn = simulation.state;
-            // remove explored move from unexplored list
-            node.borrow_mut().unexplored.remove(rand_idx);
-            simulation.make_move(explored_move);
-            // create new child node and add to tree
-            let child = Node::new(Some(node.clone()), explored_move, explored_turn, simulation.get_valid_moves());
-            node.borrow_mut().children.push(child.clone());
-            node = child;
-        }
-        // SIMULATE
-        while [State::BlackTurn, State::WhiteTurn].contains(&simulation.state) {
-            let valid_moves = simulation.get_valid_moves();
-            let random_move = valid_moves[rand::random::<usize>() % valid_moves.len()];
-            simulation.make_move(random_move);
-        }
-        // BACKPROPAGATE
-        let result = simulation.state;
-        while node.borrow().parent.is_some() {
-            node.borrow_mut().update(result);
-            let parent = node.borrow().parent.as_ref().unwrap().clone();
-            node = parent;
-        }
-        node.borrow_mut().update(result);
-    }
-    let best_move = root.borrow().get_most_visited_child_position();
-    best_move
 }

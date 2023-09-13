@@ -89,19 +89,19 @@ impl Othello {
             return;
         }
         // switch turns and update valid moves
-        self.state = match self.state {
-            State::BlackTurn => State::WhiteTurn,
-            State::WhiteTurn => State::BlackTurn,
-            _ => panic!("(Unexpected)Can't switch turns: Game is over!"),
-        };
+        if self.state == State::BlackTurn {
+            self.state = State::WhiteTurn;
+        } else {
+            self.state = State::BlackTurn;
+        }
         self.update_valid_cells();
         // if no valid moves, switch turns again
         if self.get_valid_moves().is_empty() {
-            self.state = match self.state {
-                State::BlackTurn => State::WhiteTurn,
-                State::WhiteTurn => State::BlackTurn,
-                _ => panic!("(Unexpected)Can't switch turns: Game is over!"),
-            };
+            if self.state == State::BlackTurn {
+                self.state = State::WhiteTurn;
+            } else {
+                self.state = State::BlackTurn;
+            }
             self.update_valid_cells();
             // if still no valid moves, game is over
             if self.get_valid_moves().is_empty() {
@@ -145,35 +145,32 @@ impl Othello {
     }
 
     fn flipped_cells(&self, position: (usize, usize)) -> Vec<(usize, usize)> {
-        let player = match self.state {
-            State::BlackTurn => Cell::Black,
-            State::WhiteTurn => Cell::White,
-            _ => panic!("(Unexpected)Cant get player color: Game is over!"),
-        };
-        let opponent = match self.state {
-            State::BlackTurn => Cell::White,
-            State::WhiteTurn => Cell::Black,
-            _ => panic!("(Unexpected)Cant get opponent color: Game is over!"),
-        };
+        let player;
+        let opponent;
+        if self.state == State::BlackTurn {
+            player = Cell::Black;
+            opponent = Cell::White;
+        } else {
+            player = Cell::White;
+            opponent = Cell::Black;
+        }
         // check in all directions
-        let pos_x = position.0;
-        let pos_y = position.1;
-        let directions = [(1, 0), (-1, 0), (0, 1), (0, -1), (1, 1), (-1, -1), (1, -1), (-1, 1)];
+        let directions = [(0, 1), (0, -1), (1, 0), (1, 1), (1, -1), (-1, 0), (-1, 1), (-1, -1)];
         let mut flipped = Vec::new();
         for direction in directions {
-            flipped.append(&mut self.flipped_cells_in_directions(pos_x, pos_y, direction.0, direction.1, player, opponent));
+            flipped.append(&mut self.flipped_cells_in_directions(position.0, position.1, direction.0, direction.1, player, opponent));
         }
         flipped
     }
 
-    fn flipped_cells_in_directions(&self, pos_x: usize, pos_y: usize, dx: i8, dy: i8, player: Cell, opponent: Cell) -> Vec<(usize, usize)> {
+    fn flipped_cells_in_directions(&self, mut x: usize, mut y: usize, dx: i8, dy: i8, player: Cell, opponent: Cell) -> Vec<(usize, usize)> {
         let mut flipped = Vec::new();
-        let mut x = pos_x.wrapping_add(dx as usize);
-        let mut y = pos_y.wrapping_add(dy as usize);
+        x = (x as i8 + dx) as usize;
+        y = (y as i8 + dy) as usize;
         while (0..8).contains(&x) && (0..8).contains(&y) && self.board[y][x] == opponent {
             flipped.push((x, y));
-            x = x.wrapping_add(dx as usize);
-            y = y.wrapping_add(dy as usize);
+            x = (x as i8 + dx) as usize;
+            y = (y as i8 + dy) as usize;
         }
         if !((0..8).contains(&x) && (0..8).contains(&y)) || self.board[y][x] != player {
             return Vec::new();

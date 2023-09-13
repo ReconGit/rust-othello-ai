@@ -1,16 +1,5 @@
 use crate::othello::{Cell, Othello, State};
 
-const REWARDS: [[i32; 8]; 8] = [
-    [80, -20, 20, 10, 10, 20, -20, 80],
-    [-20, -40, -10, -10, -10, -10, -40, -20],
-    [20, -10, 10, 0, 0, 10, -10, 20],
-    [10, -10, 0, 5, 5, 0, -10, 10],
-    [10, -10, 0, 5, 5, 0, -10, 10],
-    [20, -10, 10, 0, 0, 10, -10, 20],
-    [-20, -40, -10, -10, -10, -10, -40, -20],
-    [80, -20, 20, 10, 10, 20, -20, 80],
-];
-
 pub fn minimax_move(game: &Othello, mut depth: i16) -> (usize, usize) {
     let possible_moves = game.get_valid_moves();
     if possible_moves.is_empty() {
@@ -85,6 +74,17 @@ fn minimax(game: &Othello, my_turn: State, depth: i16, mut alpha: i32, mut beta:
     }
     best_value
 }
+
+const REWARDS: [[i32; 8]; 8] = [
+    [80, -20, 20, 10, 10, 20, -20, 80],
+    [-20, -40, -10, -10, -10, -10, -40, -20],
+    [20, -10, 10, 0, 0, 10, -10, 20],
+    [10, -10, 0, 5, 5, 0, -10, 10],
+    [10, -10, 0, 5, 5, 0, -10, 10],
+    [20, -10, 10, 0, 0, 10, -10, 20],
+    [-20, -40, -10, -10, -10, -10, -40, -20],
+    [80, -20, 20, 10, 10, 20, -20, 80],
+];
 
 fn evaluate_board(game_board: [[Cell; 8]; 8], my_turn: State) -> i32 {
     let mut score = 0;
