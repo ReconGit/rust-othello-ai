@@ -5,18 +5,15 @@ pub fn minimax_move(game: &Othello, mut depth: i16) -> (usize, usize) {
     if possible_moves.is_empty() {
         panic!("Minimax: No valid moves!");
     }
-    // if only one move, return it
     if possible_moves.len() == 1 {
         return possible_moves[0];
     }
-    // if round is less than n, use random move
     let round = get_round(game.board);
     if round < 3 {
         return possible_moves[rand::random::<usize>() % possible_moves.len()];
     }
-    // iterate depth based on round
     if round >= 50 {
-        depth += 10;
+        depth += 10; // endgame solver
     } else if round > 40 {
         depth += 2;
     } else if round > 30 {
@@ -53,14 +50,14 @@ fn minimax(game: &Othello, my_turn: State, depth: i16, mut alpha: i32, mut beta:
     if depth == 0 {
         return evaluate_board(game.board, my_turn);
     }
-    let possible_moves = game.get_valid_moves();
-    // if state is my turn, best_value is MIN, else MAX
+
     let mut best_value = if state == my_turn { std::i32::MIN } else { std::i32::MAX };
+    let possible_moves = game.get_valid_moves();
     for move_ in possible_moves {
         let mut simulation = game.clone();
         simulation.make_move(move_);
         let value = minimax(&simulation, my_turn, depth - 1, alpha, beta);
-        // alpha-beta pruning
+
         if state == my_turn {
             best_value = std::cmp::max(best_value, value);
             alpha = std::cmp::max(best_value, alpha);
@@ -69,7 +66,7 @@ fn minimax(game: &Othello, my_turn: State, depth: i16, mut alpha: i32, mut beta:
             beta = std::cmp::min(best_value, beta);
         }
         if alpha >= beta {
-            break;
+            break; // prune
         }
     }
     best_value

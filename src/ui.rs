@@ -58,7 +58,6 @@ fn print_score(black_score: u8, white_score: u8) {
 
 fn print_state(state: State) {
     let current_state = match state {
-        // print colored
         State::BlackTurn => Colour::Black.paint("     BLACK turn"),
         State::WhiteTurn => Colour::White.paint("     WHITE turn"),
         State::BlackWon =>  Colour::Black.paint("     BLACK won"),

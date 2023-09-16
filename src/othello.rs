@@ -25,7 +25,6 @@ pub struct Othello {
 
 impl Othello {
     pub fn new() -> Othello {
-        // initialize board
         let mut board = [[Cell::Empty; 8]; 8];
         board[3][3] = Cell::White;
         board[3][4] = Cell::Black;
@@ -35,7 +34,7 @@ impl Othello {
         board[3][2] = Cell::Valid;
         board[4][5] = Cell::Valid;
         board[5][4] = Cell::Valid;
-        // initialize starting state
+
         Othello {
             black_score: 2,
             white_score: 2,
@@ -45,7 +44,6 @@ impl Othello {
     }
 
     pub fn make_move(&mut self, position: (usize, usize)) {
-        // sanity checks
         let reverse = match self.state {
             State::BlackTurn => Cell::Black,
             State::WhiteTurn => Cell::White,
@@ -54,17 +52,14 @@ impl Othello {
         if self.board[position.1][position.0] != Cell::Valid {
             panic!("Can't make move: Invalid position!");
         }
-        // reverse cells
         self.board[position.1][position.0] = reverse;
         for cell in self.flipped_cells(position) {
             self.board[cell.1][cell.0] = reverse;
         }
-        // update game state
         self.update_state();
     }
 
     pub fn get_valid_moves(&self) -> Vec<(usize, usize)> {
-        // return empty vector if game is over
         if ![State::BlackTurn, State::WhiteTurn].contains(&self.state) {
             return Vec::new();
         }
@@ -83,7 +78,6 @@ impl Othello {
         // update score
         self.black_score = self.board.iter().flatten().filter(|&x| *x == Cell::Black).count() as u8;
         self.white_score = self.board.iter().flatten().filter(|&x| *x == Cell::White).count() as u8;
-        // check if game is over
         if self.is_board_full() || self.black_score == 0 || self.white_score == 0 {
             self.decide_winner();
             return;
@@ -95,7 +89,7 @@ impl Othello {
             self.state = State::BlackTurn;
         }
         self.update_valid_cells();
-        // if no valid moves, switch turns again
+        // if no valid moves for next player, switch turns again
         if self.get_valid_moves().is_empty() {
             if self.state == State::BlackTurn {
                 self.state = State::WhiteTurn;
