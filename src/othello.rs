@@ -50,7 +50,7 @@ impl Othello {
             _ => panic!("Can't make move: Game is over!"),
         };
         if self.board[position.1][position.0] != Cell::Valid {
-            panic!("Can't make move: Invalid position!");
+            panic!("Can't make move: Invalid position {:?}", position);
         }
         self.board[position.1][position.0] = reverse;
         for cell in self.flipped_cells(position) {

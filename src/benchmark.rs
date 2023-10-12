@@ -8,7 +8,7 @@ use crate::{
 };
 
 const GAMES: i16 = 100;
-const MINIMAX_DEPTH: i16 = 2;
+const MINIMAX_DEPTH: i16 = 3;
 const MCTS_ITERATIONS: i16 = 100;
 
 pub fn run_benchmarks() {

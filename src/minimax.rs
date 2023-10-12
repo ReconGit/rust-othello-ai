@@ -20,56 +20,42 @@ pub fn minimax_move(game: &Othello, mut depth: i16) -> (usize, usize) {
         depth += 1;
     }
 
-    let my_turn = game.state;
-    let mut best_move = possible_moves[0];
-    let mut best_value = std::i32::MIN;
-    for move_ in possible_moves {
-        let mut simulation = game.clone();
-        simulation.make_move(move_);
-        let value = minimax(&simulation, my_turn, depth - 1, std::i32::MIN, std::i32::MAX);
-        if value > best_value {
-            best_move = move_;
-            best_value = value;
-        }
-        if value >= 300 {
-            break;
-        }
-    }
-    best_move
+    minimax(game, game.state, depth, std::i32::MIN, std::i32::MAX).1
 }
 
-fn minimax(game: &Othello, my_turn: State, depth: i16, mut alpha: i32, mut beta: i32) -> i32 {
+fn minimax(game: &Othello, my_turn: State, depth: i16, mut alpha: i32, mut beta: i32) -> (i32, (usize, usize)) {
     let state = game.state;
-    if state == State::BlackWon {
-        return if State::BlackTurn == my_turn { 300 } else { -300 };
-    } else if state == State::WhiteWon {
-        return if State::WhiteTurn == my_turn { 300 } else { -300 };
-    } else if state == State::Draw {
-        return 0;
-    }
-    if depth == 0 {
-        return evaluate_board(game.board, my_turn);
+    if depth == 0 || state != State::BlackTurn && state != State::WhiteTurn {
+        return (evaluate_board(game, my_turn), (0, 0));
     }
 
-    let mut best_value = if state == my_turn { std::i32::MIN } else { std::i32::MAX };
     let possible_moves = game.get_valid_moves();
+    let mut best_move = possible_moves[0];
+    let mut best_value = if state == my_turn { std::i32::MIN } else { std::i32::MAX };
+
     for move_ in possible_moves {
         let mut simulation = game.clone();
         simulation.make_move(move_);
-        let value = minimax(&simulation, my_turn, depth - 1, alpha, beta);
+        let value = minimax(&simulation, my_turn, depth - 1, alpha, beta).0;
 
         if state == my_turn {
-            best_value = std::cmp::max(best_value, value);
+            if value > best_value {
+                best_value = value;
+                best_move = move_;
+            }
             alpha = std::cmp::max(best_value, alpha);
         } else {
-            best_value = std::cmp::min(best_value, value);
+            if value < best_value {
+                best_value = value;
+                best_move = move_;
+            }
             beta = std::cmp::min(best_value, beta);
         }
         if alpha >= beta {
             break; // prune
         }
     }
-    best_value
+    (best_value, best_move)
 }
 
 const REWARDS: [[i32; 8]; 8] = [
@@ -83,11 +69,20 @@ const REWARDS: [[i32; 8]; 8] = [
     [80, -20, 20, 10, 10, 20, -20, 80],
 ];
 
-fn evaluate_board(game_board: [[Cell; 8]; 8], my_turn: State) -> i32 {
+fn evaluate_board(game: &Othello, my_turn: State) -> i32 {
+    let state = game.state;
+    if state == State::BlackWon {
+        return if State::BlackTurn == my_turn { std::i32::MAX } else { std::i32::MIN };
+    } else if state == State::WhiteWon {
+        return if State::WhiteTurn == my_turn { std::i32::MAX } else { std::i32::MIN };
+    } else if state == State::Draw {
+        return 0;
+    }
+
     let mut score = 0;
     for y in 0..8 {
         for x in 0..8 {
-            let cell = game_board[y][x];
+            let cell = game.board[y][x];
             if cell == Cell::Black {
                 score += if my_turn == State::BlackTurn { REWARDS[y][x] } else { -REWARDS[y][x] };
             } else if cell == Cell::White {
