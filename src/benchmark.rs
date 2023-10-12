@@ -82,9 +82,9 @@ fn benchmark_game(
     }
     let elapsed_time = start_time.elapsed().as_secs_f32();
     println!("  elapsed time: {:.2}s                     ", elapsed_time);
-    println!("    BLACK wins: {} {:.0} %", black_wins, (black_wins as f32 / GAMES as f32) * 100 as f32);
-    println!("    WHITE wins: {} {:.0} %", white_wins, (white_wins as f32 / GAMES as f32) * 100 as f32);
-    println!("         Draws: {} {:.0} %", draws, (draws as f32 / GAMES as f32) * 100 as f32);
+    println!("    BLACK wins: {} {:.0}%", black_wins, (black_wins as f32 / GAMES as f32) * 100 as f32);
+    println!("    WHITE wins: {} {:.0}%", white_wins, (white_wins as f32 / GAMES as f32) * 100 as f32);
+    println!("         Draws: {} {:.0}%", draws, (draws as f32 / GAMES as f32) * 100 as f32);
 }
 
 fn random_move(game: &Othello, _dummy_iterations: i16) -> (usize, usize) {
