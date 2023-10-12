@@ -47,7 +47,7 @@ impl Othello {
         let reverse = match self.state {
             State::BlackTurn => Cell::Black,
             State::WhiteTurn => Cell::White,
-            _ => panic!("Can't make move: Game is over!"),
+            _ => panic!("Can't make move: Game is over"),
         };
         if self.board[position.1][position.0] != Cell::Valid {
             panic!("Can't make move: Invalid position {:?}", position);

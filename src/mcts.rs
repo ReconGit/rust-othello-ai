@@ -86,16 +86,16 @@ impl Node {
     }
 
     fn get_most_visited_child_position(&self) -> (usize, usize) {
-        let mut most_visited_child_idx = 0;
+        let mut most_visited_idx = 0;
         let mut most_visits = 0;
         for (i, child) in self.children.iter().enumerate() {
             let child_ = child.borrow();
             if child_.visits > most_visits {
-                most_visited_child_idx = i;
+                most_visited_idx = i;
                 most_visits = child_.visits;
             }
         }
-        self.children[most_visited_child_idx].borrow().position
+        self.children[most_visited_idx].borrow().position
     }
 
     fn update(&mut self, result: State) {
